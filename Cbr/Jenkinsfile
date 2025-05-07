@@ -1,0 +1,31 @@
+﻿pipeline {
+    agent any
+
+    stages {
+        stage('Restore') {
+            steps {
+                sh 'dotnet restore Cbr.sln'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'dotnet build Cbr.sln --configuration Release'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'dotnet test Cbr.Tests/Cbr.Tests.csproj --no-build --verbosity normal'
+            }
+        }
+        stage('Publish') {
+            steps {
+                sh 'dotnet publish Cbr/Cbr.csproj -c Release -o out'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t cbr-api .'
+            }
+        }
+    }
+}
